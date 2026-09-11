@@ -27,4 +27,13 @@ public class BuildingService {
     public Building getBuilding (Long id){
         return buildingRepository.findById(id).orElse(null);
     }
+    public Building updateBuilding(Long id, Building newBuilding){
+        Building building = buildingRepository.findById(id).orElse(null);
+        if (building == null){
+            return null;
+        }
+        building.setName(newBuilding.getName());
+        building.setNumberOfFloors(newBuilding.getNumberOfFloors());
+        return buildingRepository.save(building);
+    }
 }
