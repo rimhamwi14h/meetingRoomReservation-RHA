@@ -11,6 +11,9 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 @Service
 public class ReservationService {
     @Autowired
@@ -94,4 +97,35 @@ public class ReservationService {
         reservation.setStatus(ReservationStatus.CANCELLED);
         return reservationRepository.save(reservation);
     }
+    public Reservation getReservation (Long id) {
+        return reservationRepository.findById(id).orElse(null);
+    }
+    public List<Reservation> getReservations (
+            Long roomId,
+            Long organizerId,
+            OffsetDateTime from,
+            OffsetDateTime to) {
+        List<Reservation> reservations = reservationRepository.findAll();
+        List<Reservation> result = new ArrayList<>();
+        for(Reservation reservation : reservations){
+            if(organizerId != null && !reservation.getRoom().getId().equals(roomId)){
+                continue;
+            }
+            if (organizerId != null && !reservation.getOrganizer().getId().equals(organizerId)) {
+                continue;
+            }
+            if (from != null && !reservation.getEnd().isAfter(from)) {
+                continue;
+            }
+            if (to != null && !reservation.getStart().isBefore(to)) {
+                continue;
+            }
+            result.add(reservation);
+        }
+        result.sort(
+                Comparator.comparing(Reservation::getStart).thenComparing(Reservation::getId)
+        );
+        return result;
+    }
+
 }
