@@ -1,9 +1,9 @@
-package roomreservation.model;
+package roomreservation.request;
 import lombok.Data;
 @Data
-public class CreateOrganizerRequest {
+public class UpdateRoomRequest {
     private String name;
-    private String email;
     private Long buildingId;
     private Integer floor;
+    private Integer capacity;
 }

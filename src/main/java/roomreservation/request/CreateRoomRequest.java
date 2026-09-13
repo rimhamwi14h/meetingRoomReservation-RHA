@@ -1,4 +1,4 @@
-package roomreservation.model;
+package roomreservation.request;
 import lombok.Data;
 import java.util.Set;
 @Data
