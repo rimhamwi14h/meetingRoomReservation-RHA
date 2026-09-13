@@ -13,4 +13,8 @@ public class ReservationController {
     public Reservation createReservation(@RequestBody CreateReservationRequest request) {
         return reservationService.createReservation(request);
     }
+    @PatchMapping("/{id}/cancel")
+    public Reservation cancelReservation(@PathVariable Long id) {
+        return reservationService.cancelReservation(id);
+    }
 }

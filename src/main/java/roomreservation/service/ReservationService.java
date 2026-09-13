@@ -83,4 +83,15 @@ public class ReservationService {
         reservation.setRequiredEquipment(requiredEquipment);
         return reservationRepository.save(reservation);
     }
+    public Reservation cancelReservation(Long id) {
+        Reservation reservation = reservationRepository.findById(id).orElse(null);
+        if (reservation == null) {
+            return null;
+        }
+        if (reservation.getStatus() == ReservationStatus.CANCELLED) {
+            return null;
+        }
+        reservation.setStatus(ReservationStatus.CANCELLED);
+        return reservationRepository.save(reservation);
+    }
 }
