@@ -4,14 +4,17 @@ import org.springframework.web.bind.annotation.*;
 import roomreservation.model.Building;
 import roomreservation.service.BuildingService;
 import java.util.List;
+import jakarta.validation.Valid;
+import roomreservation.request.CreateBuildingRequest;
+import roomreservation.request.UpdateBuildingRequest;
 @RestController
 @RequestMapping("/api/buildings")
 public class BuildingController {
     @Autowired
     private BuildingService buildingService;
     @PostMapping
-    public Building createBuilding(@RequestBody Building building){
-        return buildingService.createBuilding(building);
+    public Building createBuilding(@Valid  @RequestBody CreateBuildingRequest request){
+        return buildingService.createBuilding(request);
     }
     @GetMapping
     public List<Building> getAllBuildings(){
@@ -24,7 +27,8 @@ public class BuildingController {
     @PutMapping("/{id}")
     public Building updateBuilding(
             @PathVariable Long id,
-            @RequestBody Building building){
-        return buildingService.updateBuilding(id, building);
+            @Valid @RequestBody UpdateBuildingRequest request) {
+
+        return buildingService.updateBuilding(id, request);
     }
 }

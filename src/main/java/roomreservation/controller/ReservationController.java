@@ -4,9 +4,10 @@ import org.springframework.web.bind.annotation.*;
 import roomreservation.model.Reservation;
 import roomreservation.request.CreateReservationRequest;
 import roomreservation.service.ReservationService;
-
+import roomreservation.request.AutomaticReservationRequest;
 import java.time.OffsetDateTime;
 import java.util.List;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -14,7 +15,7 @@ public class ReservationController {
     @Autowired
     private ReservationService reservationService;
     @PostMapping
-    public Reservation createReservation(@RequestBody CreateReservationRequest request) {
+    public Reservation createReservation(@Valid @RequestBody CreateReservationRequest request) {
         return reservationService.createReservation(request);
     }
     @PatchMapping("/{id}/cancel")
@@ -37,5 +38,10 @@ public class ReservationController {
                 from,
                 to
         );
+    }
+    @PostMapping("/automatic")
+    public Reservation createAutomaticReservation(@Valid @RequestBody AutomaticReservationRequest request) {
+
+        return reservationService.createAutomaticReservation(request);
     }
 }

@@ -1,20 +1,18 @@
 package roomreservation.request;
-import lombok.Data;
-import java.time.OffsetDateTime;
-import java.util.Set;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
+import java.time.OffsetDateTime;
+import java.util.Set;
 @Data
-public class CreateReservationRequest {
+public class AutomaticReservationRequest {
     @NotBlank
     @Size(max = 200)
     private String title;
     @NotNull
     private Long organizerId;
-    @NotNull
-    private Long roomId;
     @NotNull
     private OffsetDateTime start;
     @NotNull

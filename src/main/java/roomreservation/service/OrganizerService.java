@@ -2,10 +2,11 @@ package roomreservation.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import roomreservation.model.Building;
-import roomreservation.model.CreateOrganizerRequest;
+import roomreservation.request.CreateOrganizerRequest;
 import roomreservation.model.Organizer;
 import roomreservation.repository.BuildingRepository;
 import roomreservation.repository.OrganizerRepository;
+import roomreservation.exception.OrganizerNotFoundException;
 import java.util.Comparator;
 import java.util.List;
 @Service
@@ -36,7 +37,7 @@ public class OrganizerService {
         );
         return organizers;
     }
-    public Organizer getOrganizer(Long id){
-        return organizerRepository.findById(id).orElse(null);
+    public Organizer getOrganizer(Long id) {
+        return organizerRepository.findById(id).orElseThrow(() -> new OrganizerNotFoundException(id));
     }
 }

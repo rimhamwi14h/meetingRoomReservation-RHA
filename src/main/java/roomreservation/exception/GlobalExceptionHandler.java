@@ -226,4 +226,41 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(error);
     }
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<ApiErrorResponse> handleResourceAlreadyExists(
+            ResourceAlreadyExistsException exception,
+            HttpServletRequest request) {
+
+        ApiErrorResponse error = new ApiErrorResponse();
+
+        error.setCode("RESOURCE_ALREADY_EXISTS");
+        error.setMessage(exception.getMessage());
+        error.setTimestamp(OffsetDateTime.now());
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
+    @ExceptionHandler(BuildingFloorCountConflictException.class)
+    public ResponseEntity<ApiErrorResponse> handleBuildingFloorCountConflict(
+            BuildingFloorCountConflictException exception,
+            HttpServletRequest request) {
+
+        ApiErrorResponse error = new ApiErrorResponse();
+
+        error.setCode("BUILDING_FLOOR_COUNT_CONFLICT");
+        error.setMessage(exception.getMessage());
+        error.setTimestamp(OffsetDateTime.now());
+        error.setPath(request.getRequestURI());
+
+        error.getDetails().put(
+                "highestOccupiedFloor",
+                exception.getHighestOccupiedFloor()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
 }

@@ -11,7 +11,9 @@ import roomreservation.request.CreateRoomRequest;
 import roomreservation.request.ReplaceRoomEquipmentRequest;
 import roomreservation.request.UpdateRoomRequest;
 import roomreservation.request.UpdateRoomStatusRequest;
-
+import roomreservation.exception.RoomNotFoundException;
+import roomreservation.exception.BuildingNotFoundException;
+import roomreservation.exception.EquipmentNotFoundException;
 import java.time.OffsetDateTime;
 import java.util.*;
 @Service
@@ -25,16 +27,13 @@ public class RoomService {
     @Autowired
     private EquipmentRepository equipmentRepository;
     public Room createRoom(CreateRoomRequest request) {
-        Building building = buildingRepository.findById(request.getBuildingId()).orElse(null);
-        if (building == null) {
-            return null;
-        }
+        Building building = buildingRepository.findById(request.getBuildingId()).orElseThrow(() -> new BuildingNotFoundException(request.getBuildingId()));
         Set<Equipment> equipment = new HashSet<>();
         if (request.getEquipmentCodes() != null) {
             for (String code : request.getEquipmentCodes()) {
                 Equipment e = equipmentRepository.findByCode(code);
                 if (e == null) {
-                    return null;
+                    throw new EquipmentNotFoundException(code);
                 }
                 equipment.add(e);
             }
@@ -52,17 +51,11 @@ public class RoomService {
         return roomRepository.findAll();
     }
     public Room getRoom(Long id) {
-        return roomRepository.findById(id).orElse(null);
+        return roomRepository.findById(id).orElseThrow(() -> new RoomNotFoundException(id));
     }
     public Room updateRoom(Long id, UpdateRoomRequest request) {
-        Room room = roomRepository.findById(id).orElse(null);
-        if (room == null) {
-            return null;
-        }
-        Building building = buildingRepository.findById(request.getBuildingId()).orElse(null);
-        if (building == null) {
-            return null;
-        }
+        Room room = roomRepository.findById(id).orElseThrow(() -> new RoomNotFoundException(id));
+        Building building = buildingRepository.findById(request.getBuildingId()).orElseThrow(() -> new BuildingNotFoundException(request.getBuildingId()));
         room.setName(request.getName());
         room.setBuilding(building);
         room.setFloor(request.getFloor());
@@ -70,25 +63,19 @@ public class RoomService {
         return roomRepository.save(room);
     }
     public Room updateRoomStatus(Long id, UpdateRoomStatusRequest request) {
-        Room room = roomRepository.findById(id).orElse(null);
-        if (room == null) {
-            return null;
-        }
+        Room room = roomRepository.findById(id).orElseThrow(() -> new RoomNotFoundException(id));
         room.setStatus(request.getStatus());
         return roomRepository.save(room);
     }
     public Room replaceRoomEquipment(
             Long id,
             ReplaceRoomEquipmentRequest request) {
-        Room room = roomRepository.findById(id).orElse(null);
-        if (room == null) {
-            return null;
-        }
+        Room room = roomRepository.findById(id).orElseThrow(() -> new RoomNotFoundException(id));
         Set<Equipment> equipment = new HashSet<>();
         for (String code : request.getEquipmentCodes()) {
             Equipment e = equipmentRepository.findByCode(code);
             if (e == null) {
-                return null;
+                throw new EquipmentNotFoundException(code);
             }
             equipment.add(e);
         }
