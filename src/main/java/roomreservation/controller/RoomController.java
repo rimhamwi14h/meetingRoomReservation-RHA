@@ -20,6 +20,8 @@ import java.util.Set;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.http.ResponseEntity;
+import java.net.URI;
 @RestController
 @RequestMapping("/api/rooms")
 @Validated
@@ -28,14 +30,20 @@ public class RoomController {
     @Autowired
     private RoomService roomService;
 
-
     @PostMapping
-    public Room createRoom(
+    public ResponseEntity<Room> createRoom(
             @Valid @RequestBody CreateRoomRequest request) {
 
-        return roomService.createRoom(request);
-    }
+        Room room = roomService.createRoom(request);
 
+        URI location = URI.create(
+                "/api/rooms/" + room.getId()
+        );
+
+        return ResponseEntity
+                .created(location)
+                .body(room);
+    }
 
     @GetMapping
     public List<Room> getAllRooms() {

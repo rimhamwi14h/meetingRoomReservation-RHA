@@ -9,7 +9,8 @@ import roomreservation.request.CreateEquipmentRequest;
 import roomreservation.service.EquipmentService;
 
 import java.util.List;
-
+import org.springframework.http.ResponseEntity;
+import java.net.URI;
 @RestController
 @RequestMapping("/api/equipment")
 public class EquipmentController {
@@ -18,10 +19,18 @@ public class EquipmentController {
     private EquipmentService equipmentService;
 
     @PostMapping
-    public Equipment createEquipment(
+    public ResponseEntity<Equipment> createEquipment(
             @Valid @RequestBody CreateEquipmentRequest request) {
 
-        return equipmentService.createEquipment(request);
+        Equipment equipment = equipmentService.createEquipment(request);
+
+        URI location = URI.create(
+                "/api/equipment/" + equipment.getId()
+        );
+
+        return ResponseEntity
+                .created(location)
+                .body(equipment);
     }
 
     @GetMapping

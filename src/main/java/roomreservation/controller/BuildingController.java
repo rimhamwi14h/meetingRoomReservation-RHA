@@ -7,14 +7,26 @@ import java.util.List;
 import jakarta.validation.Valid;
 import roomreservation.request.CreateBuildingRequest;
 import roomreservation.request.UpdateBuildingRequest;
+import org.springframework.http.ResponseEntity;
+import java.net.URI;
 @RestController
 @RequestMapping("/api/buildings")
 public class BuildingController {
     @Autowired
     private BuildingService buildingService;
     @PostMapping
-    public Building createBuilding(@Valid  @RequestBody CreateBuildingRequest request){
-        return buildingService.createBuilding(request);
+    public ResponseEntity<Building> createBuilding(
+            @Valid @RequestBody CreateBuildingRequest request) {
+
+        Building building = buildingService.createBuilding(request);
+
+        URI location = URI.create(
+                "/api/buildings/" + building.getId()
+        );
+
+        return ResponseEntity
+                .created(location)
+                .body(building);
     }
     @GetMapping
     public List<Building> getAllBuildings(){

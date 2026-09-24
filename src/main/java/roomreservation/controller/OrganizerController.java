@@ -6,16 +6,26 @@ import roomreservation.model.Organizer;
 import roomreservation.service.OrganizerService;
 import java.util.List;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
+import java.net.URI;
 @RestController
 @RequestMapping("/api/organizers")
 public class OrganizerController {
     @Autowired
     private OrganizerService organizerService;
     @PostMapping
-    public Organizer createOrganizer(
+    public ResponseEntity<Organizer> createOrganizer(
             @Valid @RequestBody CreateOrganizerRequest request) {
 
-        return organizerService.createOrganizer(request);
+        Organizer organizer = organizerService.createOrganizer(request);
+
+        URI location = URI.create(
+                "/api/organizers/" + organizer.getId()
+        );
+
+        return ResponseEntity
+                .created(location)
+                .body(organizer);
     }
     @GetMapping
     public List<Organizer> getAllOrganizers(){
