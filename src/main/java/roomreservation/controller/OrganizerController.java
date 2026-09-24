@@ -5,13 +5,16 @@ import roomreservation.request.CreateOrganizerRequest;
 import roomreservation.model.Organizer;
 import roomreservation.service.OrganizerService;
 import java.util.List;
+import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/api/organizers")
 public class OrganizerController {
     @Autowired
     private OrganizerService organizerService;
     @PostMapping
-    public Organizer createOrganizer(@RequestBody CreateOrganizerRequest request){
+    public Organizer createOrganizer(
+            @Valid @RequestBody CreateOrganizerRequest request) {
+
         return organizerService.createOrganizer(request);
     }
     @GetMapping
