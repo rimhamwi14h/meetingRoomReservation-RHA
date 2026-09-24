@@ -9,7 +9,8 @@ import roomreservation.response.ApiErrorResponse;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import java.time.OffsetDateTime;
-
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -261,6 +262,54 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
+    @ExceptionHandler(InvalidFloorException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidFloor(
+            InvalidFloorException exception,
+            HttpServletRequest request) {
+
+        ApiErrorResponse error = new ApiErrorResponse();
+
+        error.setCode("VALIDATION_ERROR");
+        error.setMessage(exception.getMessage());
+        error.setTimestamp(OffsetDateTime.now());
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(
+            ConstraintViolationException exception,
+            HttpServletRequest request) {
+
+        ApiErrorResponse error = new ApiErrorResponse();
+
+        error.setCode("VALIDATION_ERROR");
+        error.setMessage("The request contains invalid data");
+        error.setTimestamp(OffsetDateTime.now());
+        error.setPath(request.getRequestURI());
+
+        for (ConstraintViolation<?> violation :
+                exception.getConstraintViolations()) {
+
+            String propertyPath =
+                    violation.getPropertyPath().toString();
+
+            String field = propertyPath.substring(
+                    propertyPath.lastIndexOf('.') + 1
+            );
+
+            error.getFieldErrors().put(
+                    field,
+                    violation.getMessage()
+            );
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(error);
     }
 }
