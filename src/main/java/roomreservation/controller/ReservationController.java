@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import roomreservation.model.Reservation;
 import roomreservation.request.AutomaticReservationRequest;
 import roomreservation.request.CreateReservationRequest;
 import roomreservation.response.ReservationResponse;
