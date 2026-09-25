@@ -8,12 +8,13 @@ import org.springframework.web.bind.annotation.*;
 import roomreservation.model.Reservation;
 import roomreservation.request.AutomaticReservationRequest;
 import roomreservation.request.CreateReservationRequest;
+import roomreservation.response.ReservationResponse;
 import roomreservation.service.ReservationService;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.List;
-
+import roomreservation.response.ReservationResponse;
 @RestController
 @RequestMapping("/api/reservations")
 public class ReservationController {
@@ -22,10 +23,10 @@ public class ReservationController {
     private ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<Reservation> createReservation(
+    public ResponseEntity<ReservationResponse> createReservation(
             @Valid @RequestBody CreateReservationRequest request) {
 
-        Reservation reservation =
+        ReservationResponse reservation =
                 reservationService.createReservation(request);
 
         URI location = URI.create(
@@ -36,24 +37,22 @@ public class ReservationController {
                 .created(location)
                 .body(reservation);
     }
-
     @PatchMapping("/{id}/cancel")
-    public Reservation cancelReservation(
+    public ReservationResponse cancelReservation(
             @PathVariable Long id) {
 
         return reservationService.cancelReservation(id);
     }
 
     @GetMapping("/{id}")
-    public Reservation getReservation(
+    public ReservationResponse getReservation(
             @PathVariable Long id) {
 
         return reservationService.getReservation(id);
     }
 
     @GetMapping
-    public List<Reservation> getReservations(
-            @RequestParam(required = false) Long roomId,
+    public List<ReservationResponse> getReservations(            @RequestParam(required = false) Long roomId,
             @RequestParam(required = false) Long organizerId,
             @RequestParam(required = false) OffsetDateTime from,
             @RequestParam(required = false) OffsetDateTime to) {
@@ -67,10 +66,10 @@ public class ReservationController {
     }
 
     @PostMapping("/automatic")
-    public ResponseEntity<Reservation> createAutomaticReservation(
+    public ResponseEntity<ReservationResponse> createAutomaticReservation(
             @Valid @RequestBody AutomaticReservationRequest request) {
 
-        Reservation reservation =
+        ReservationResponse reservation =
                 reservationService.createAutomaticReservation(request);
 
         URI location = URI.create(
