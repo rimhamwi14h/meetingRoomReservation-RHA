@@ -35,7 +35,12 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
+/**
+ * Service responsible for reservation management.
+ *
+ * It handles manual and automatic room reservations,
+ * conflict detection, room scoring and reservation cancellation.
+ */
 @Service
 public class ReservationService {
 
@@ -353,7 +358,16 @@ public class ReservationService {
 
         return responses;
     }
-
+    /**
+     * Calculates the distance between a room and an organizer.
+     *
+     * Rooms in the same building use the floor difference.
+     * Rooms in different buildings receive an additional penalty of 10.
+     *
+     * @param room the room
+     * @param organizer the organizer
+     * @return the calculated distance
+     */
     public int calculateDistance(
             Room room,
             Organizer organizer) {
@@ -373,7 +387,16 @@ public class ReservationService {
 
         return 10 + floorDistance;
     }
-
+    /**
+     * Calculates the score used for automatic room assignment.
+     *
+     * The score combines the distance and the unused room capacity.
+     *
+     * @param room the candidate room
+     * @param organizer the organizer
+     * @param numberOfParticipants number of participants
+     * @return the room assignment score
+     */
     public long calculateScore(
             Room room,
             Organizer organizer,
@@ -388,7 +411,13 @@ public class ReservationService {
 
         return distance * 10L + unusedCapacity;
     }
-
+    /**
+     * Creates a reservation by automatically selecting
+     * the most suitable compatible room.
+     *
+     * @param request reservation information
+     * @return the created reservation
+     */
     public ReservationResponse createAutomaticReservation(
             AutomaticReservationRequest request) {
         Organizer organizer =
