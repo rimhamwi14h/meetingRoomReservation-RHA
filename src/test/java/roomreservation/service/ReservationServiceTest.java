@@ -713,7 +713,7 @@ class ReservationServiceTest {
         when(organizerRepository.findById(1L))
                 .thenReturn(Optional.of(organizer));
 
-        // On met volontairement l'id 2 avant l'id 1
+        // On met volontairement l'id 2 avant l'id 1.
         when(roomRepository.findAll())
                 .thenReturn(
                         List.of(
