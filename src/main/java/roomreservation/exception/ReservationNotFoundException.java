@@ -1,8 +1,22 @@
 package roomreservation.exception;
 
-public class ReservationNotFoundException extends RuntimeException {
+public class ReservationNotFoundException
+        extends RuntimeException {
 
-    public ReservationNotFoundException(Long id) {
-        super("Reservation " + id + " not found");
+    private final Long reservationId;
+
+    public ReservationNotFoundException(Long reservationId) {
+
+        super(
+                "Reservation "
+                        + reservationId
+                        + " not found"
+        );
+
+        this.reservationId = reservationId;
+    }
+
+    public Long getReservationId() {
+        return reservationId;
     }
 }

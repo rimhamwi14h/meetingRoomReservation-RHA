@@ -2,7 +2,14 @@ package roomreservation.exception;
 
 public class BuildingNotFoundException extends RuntimeException {
 
-    public BuildingNotFoundException(Long id) {
-        super("Building " + id + " not found");
+    private final Long buildingId;
+
+    public BuildingNotFoundException(Long buildingId) {
+        super("Building " + buildingId + " not found");
+        this.buildingId = buildingId;
+    }
+
+    public Long getBuildingId() {
+        return buildingId;
     }
 }

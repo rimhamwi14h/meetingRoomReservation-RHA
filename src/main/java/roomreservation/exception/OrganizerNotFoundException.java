@@ -2,7 +2,14 @@ package roomreservation.exception;
 
 public class OrganizerNotFoundException extends RuntimeException {
 
-    public OrganizerNotFoundException(Long id) {
-        super("Organizer " + id + " not found");
+    private final Long organizerId;
+
+    public OrganizerNotFoundException(Long organizerId) {
+        super("Organizer " + organizerId + " not found");
+        this.organizerId = organizerId;
+    }
+
+    public Long getOrganizerId() {
+        return organizerId;
     }
 }

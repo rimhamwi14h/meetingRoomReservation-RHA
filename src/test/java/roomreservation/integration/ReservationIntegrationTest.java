@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -518,6 +519,45 @@ class ReservationIntegrationTest {
                         jsonPath(
                                 "$.fieldErrors.numberOfParticipants"
                         )
+                                .exists()
+                );
+    }
+    @Test
+    void shouldReturnReservationIdInErrorDetails()
+            throws Exception {
+
+        // GIVEN
+        Long reservationId = 999L;
+
+        // WHEN + THEN
+        mockMvc.perform(
+                        get(
+                                "/api/reservations/"
+                                        + reservationId
+                        )
+                )
+
+                .andExpect(
+                        status().isNotFound()
+                )
+
+                .andExpect(
+                        jsonPath("$.code")
+                                .value("RESERVATION_NOT_FOUND")
+                )
+
+                .andExpect(
+                        jsonPath("$.path")
+                                .value("/api/reservations/999")
+                )
+
+                .andExpect(
+                        jsonPath("$.details.reservationId")
+                                .value(999)
+                )
+
+                .andExpect(
+                        jsonPath("$.fieldErrors")
                                 .exists()
                 );
     }

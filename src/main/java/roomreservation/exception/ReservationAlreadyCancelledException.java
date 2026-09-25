@@ -1,8 +1,23 @@
 package roomreservation.exception;
 
-public class ReservationAlreadyCancelledException extends RuntimeException {
+public class ReservationAlreadyCancelledException
+        extends RuntimeException {
 
-    public ReservationAlreadyCancelledException(Long id) {
-        super("Reservation " + id + " is already cancelled");
+    private final Long reservationId;
+
+    public ReservationAlreadyCancelledException(
+            Long reservationId) {
+
+        super(
+                "Reservation "
+                        + reservationId
+                        + " is already cancelled"
+        );
+
+        this.reservationId = reservationId;
+    }
+
+    public Long getReservationId() {
+        return reservationId;
     }
 }

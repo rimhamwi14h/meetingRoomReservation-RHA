@@ -54,33 +54,42 @@ public class ReservationService {
     public ReservationResponse createReservation(
             CreateReservationRequest request) {
 
-        Room room = roomRepository
-                .findById(request.getRoomId())
-                .orElseThrow(() ->
-                        new RoomNotFoundException(
-                                request.getRoomId()
-                        )
-                );
+        Room room =
+                roomRepository
+                        .findById(request.getRoomId())
+                        .orElseThrow(() ->
+                                new RoomNotFoundException(
+                                        request.getRoomId()
+                                )
+                        );
 
-        Organizer organizer = organizerRepository
-                .findById(request.getOrganizerId())
-                .orElseThrow(() ->
-                        new OrganizerNotFoundException(
-                                request.getOrganizerId()
-                        )
-                );
+        Organizer organizer =
+                organizerRepository
+                        .findById(request.getOrganizerId())
+                        .orElseThrow(() ->
+                                new OrganizerNotFoundException(
+                                        request.getOrganizerId()
+                                )
+                        );
 
-        if (!request.getStart().isBefore(request.getEnd())) {
+
+        if (!request.getStart()
+                .isBefore(request.getEnd())) {
+
             throw new InvalidReservationPeriodException(
                     "Start must be before end"
             );
         }
 
-        if (request.getStart().isBefore(OffsetDateTime.now())) {
+
+        if (request.getStart()
+                .isBefore(OffsetDateTime.now())) {
+
             throw new InvalidReservationPeriodException(
                     "Start cannot be in the past"
             );
         }
+
 
         if (Duration.between(
                 request.getStart(),
@@ -92,69 +101,125 @@ public class ReservationService {
             );
         }
 
-        if (room.getStatus() != RoomStatus.AVAILABLE) {
+
+        if (room.getStatus()
+                != RoomStatus.AVAILABLE) {
+
             throw new RoomUnavailableException(
                     room.getId()
             );
         }
 
+
         if (room.getCapacity()
                 < request.getNumberOfParticipants()) {
 
             throw new RoomCapacityExceededException(
-                    room.getId()
+                    room.getId(),
+                    room.getCapacity(),
+                    request.getNumberOfParticipants()
             );
         }
+
 
         Set<Equipment> requiredEquipment =
                 new HashSet<>();
 
-        if (request.getRequiredEquipmentCodes() != null) {
+        Set<String> missingEquipmentCodes =
+                new HashSet<>();
+
+
+        if (request.getRequiredEquipmentCodes()
+                != null) {
 
             for (String code :
                     request.getRequiredEquipmentCodes()) {
 
                 Equipment equipment =
-                        equipmentRepository.findByCode(code);
+                        equipmentRepository
+                                .findByCode(code);
 
                 if (equipment == null) {
+
                     throw new EquipmentNotFoundException(
                             code
                     );
                 }
 
-                if (!room.getEquipment().contains(equipment)) {
-                    throw new MissingRequiredEquipmentException(
-                            code
-                    );
+                requiredEquipment.add(equipment);
+
+                boolean foundInRoom = false;
+
+                for (Equipment roomEquipment :
+                        room.getEquipment()) {
+
+                    if (roomEquipment
+                            .getCode()
+                            .equals(code)) {
+
+                        foundInRoom = true;
+                        break;
+                    }
                 }
 
-                requiredEquipment.add(equipment);
+                if (!foundInRoom) {
+                    missingEquipmentCodes.add(code);
+                }
             }
         }
 
-        boolean conflict =
+
+        if (!missingEquipmentCodes.isEmpty()) {
+
+            throw new MissingRequiredEquipmentException(
+                    room.getId(),
+                    missingEquipmentCodes
+            );
+        }
+
+
+        Reservation conflictingReservation =
                 reservationRepository
-                        .existsByRoomAndStatusAndStartLessThanAndEndGreaterThan(
+                        .findFirstByRoomAndStatusAndStartLessThanAndEndGreaterThan(
                                 room,
                                 ReservationStatus.CONFIRMED,
                                 request.getEnd(),
                                 request.getStart()
-                        );
+                        )
+                        .orElse(null);
 
-        if (conflict) {
+
+        if (conflictingReservation != null) {
+
             throw new RoomAlreadyReservedException(
-                    room.getId()
+                    room.getId(),
+                    conflictingReservation.getId()
             );
         }
 
-        Reservation reservation = new Reservation();
 
-        reservation.setTitle(request.getTitle());
-        reservation.setRoom(room);
-        reservation.setOrganizer(organizer);
-        reservation.setStart(request.getStart());
-        reservation.setEnd(request.getEnd());
+        Reservation reservation =
+                new Reservation();
+
+        reservation.setTitle(
+                request.getTitle()
+        );
+
+        reservation.setRoom(
+                room
+        );
+
+        reservation.setOrganizer(
+                organizer
+        );
+
+        reservation.setStart(
+                request.getStart()
+        );
+
+        reservation.setEnd(
+                request.getEnd()
+        );
 
         reservation.setNumberOfParticipants(
                 request.getNumberOfParticipants()
@@ -168,13 +233,16 @@ public class ReservationService {
                 requiredEquipment
         );
 
+
         Reservation savedReservation =
-                reservationRepository.save(reservation);
+                reservationRepository
+                        .save(reservation);
+
 
         return toResponse(savedReservation);
     }
-
-    public ReservationResponse cancelReservation(Long id) {
+    public ReservationResponse cancelReservation(
+            Long id) {
 
         Reservation reservation =
                 reservationRepository
@@ -183,22 +251,28 @@ public class ReservationService {
                                 new ReservationNotFoundException(id)
                         );
 
+
         if (reservation.getStatus()
                 == ReservationStatus.CANCELLED) {
 
-            throw new ReservationAlreadyCancelledException(id);
+            throw new ReservationAlreadyCancelledException(
+                    id
+            );
         }
+
 
         reservation.setStatus(
                 ReservationStatus.CANCELLED
         );
 
+
         Reservation savedReservation =
-                reservationRepository.save(reservation);
+                reservationRepository
+                        .save(reservation);
+
 
         return toResponse(savedReservation);
     }
-
     public ReservationResponse getReservation(Long id) {
 
         Reservation reservation =
@@ -216,6 +290,14 @@ public class ReservationService {
             Long organizerId,
             OffsetDateTime from,
             OffsetDateTime to) {
+        if (from != null &&
+                to != null &&
+                !from.isBefore(to)) {
+
+            throw new InvalidReservationPeriodException(
+                    "From must be before to"
+            );
+        }
 
         List<Reservation> reservations =
                 reservationRepository.findAll();
